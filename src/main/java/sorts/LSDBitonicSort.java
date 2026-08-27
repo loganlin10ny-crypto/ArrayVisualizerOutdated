@@ -1,4 +1,4 @@
-comparativeSorts.add(new RadixBitonicSort());
+package sorts.distributive;
 package array.visualizer.sort;
 
 import array.visualizer.ArrayController;
