@@ -1,0 +1,76 @@
+package array.visualizer.sort;
+
+import array.visualizer.ArrayController;
+
+public class RadixBitonicSort implements Sort {
+    @Override
+    public String name() {
+        return "LSD Radix Bitonic Sort";
+    }
+
+    @Override
+    public void sort(ArrayController ac) {
+        int length = ac.getArrayLength();
+        
+        int max = ac.get(0);
+        for (int i = 1; i < length; i++) {
+            if (ac.get(i) > max) {
+                max = ac.get(i);
+            }
+        }
+
+        for (int exp = 1; max / exp > 0; exp *= 10) {
+            radixCountingSort(ac, length, exp);
+        }
+
+        bitonicSort(ac, 0, length, 1);
+    }
+
+    private void radixCountingSort(ArrayController ac, int length, int exp) {
+        int[] output = new int[length];
+        int[] count = new int[10];
+
+        for (int i = 0; i < length; i++) {
+            int digit = (ac.get(i) / exp) % 10;
+            count[digit]++;
+        }
+
+        for (int i = 1; i < 10; i++) {
+            count[i] += count[i - 1];
+        }
+
+        for (int i = length - 1; i >= 0; i--) {
+            int digit = (ac.get(i) / exp) % 10;
+            output[count[digit] - 1] = ac.get(i);
+            count[digit]--;
+        }
+
+        for (int i = 0; i < length; i++) {
+            ac.set(i, output[i]);
+        }
+    }
+
+    private void bitonicSort(ArrayController ac, int low, int cnt, int dir) {
+        if (cnt > 1) {
+            int k = cnt / 2;
+            bitonicSort(ac, low, k, 1);
+            bitonicSort(ac, low + k, k, 0);
+            bitonicMerge(ac, low, cnt, dir);
+        }
+    }
+
+    private void bitonicMerge(ArrayController ac, int low, int cnt, int dir) {
+        if (cnt > 1) {
+            int k = cnt / 2;
+            for (int i = low; i < low + k; i++) {
+                boolean shouldSwap = (dir == 1 && ac.get(i) > ac.get(i + k)) || 
+                                     (dir == 0 && ac.get(i) < ac.get(i + k));
+                if (shouldSwap) {
+                    ac.swap(i, i + k);
+                }
+            }
+            bitonicMerge(ac, low, k, dir);
+            bitonicMerge(ac, low + k, k, dir);
+        }
+    }
+}
